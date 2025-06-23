@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timer Widget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Impact, 'Arial Black', sans-serif;
+            background: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .timer-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .timer-display {
+            font-size: 4rem;
+            font-weight: 900;
+            color: #2d3748;
+            margin-bottom: 30px;
+            font-family: Impact, 'Arial Black', sans-serif;
+            letter-spacing: 2px;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .timer-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .start-btn {
+            background: #6b7280;
+            color: white;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(107, 114, 128, 0.3);
+            background: #4b5563;
+        }
+
+        .pause-btn {
+            background: #6b7280;
+            color: white;
+        }
+
+        .pause-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(107, 114, 128, 0.3);
+            background: #4b5563;
+        }
+
+        .reset-btn {
+            background: #6b7280;
+            color: white;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(107, 114, 128, 0.3);
+            background: #4b5563;
+        }
+
+        .timer-presets {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .preset-btn {
+            padding: 8px 16px;
+            border: 2px solid #6b7280;
+            border-radius: 25px;
+            background: transparent;
+            color: #6b7280;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .preset-btn:hover {
+            background: #6b7280;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .preset-btn.active {
+            background: #6b7280;
+            color: white;
+        }
+
+        .progress-ring {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 30px;
+        }
+
+        .progress-ring svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            fill: none;
+            stroke: #e2e8f0;
+            stroke-width: 8;
+        }
+
+        .progress-ring-progress {
+            fill: none;
+            stroke: #667eea;
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.3s ease;
+        }
+
+        .custom-time {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .time-input {
+            width: 60px;
+            padding: 8px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .time-input:focus {
+            outline: none;
+            border-color: #6b7280;
+        }
+
+        .status-indicator {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-running {
+            color: #4CAF50;
+        }
+
+        .status-paused {
+            color: #ff9800;
+        }
+
+        .status-stopped {
+            color: #f44336;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 480px) {
+            .timer-display {
+                font-size: 3rem;
+            }
+            
+            .timer-container {
+                padding: 30px 20px;
+            }
+            
+            .timer-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .timer-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="timer-container">
+        <div class="status-indicator" id="status">Ready</div>
+        
+        <div class="progress-ring">
+            <svg>
+                <circle class="progress-ring-circle" cx="100" cy="100" r="90"></circle>
+                <circle class="progress-ring-progress" cx="100" cy="100" r="90" id="progressCircle"></circle>
+            </svg>
+        </div>
+        
+        <div class="timer-display" id="timerDisplay">25:00</div>
+        
+        <div class="timer-presets">
+            <button class="preset-btn active" data-minutes="25">25min</button>
+            <button class="preset-btn" data-minutes="5">5min</button>
+        </div>
+        
+        
+        <div class="timer-controls">
+            <button class="timer-btn start-btn" id="startBtn" onclick="startTimer()">Start</button>
+            <button class="timer-btn pause-btn" id="pauseBtn" onclick="pauseTimer()">Pause</button>
+            <button class="timer-btn reset-btn" id="resetBtn" onclick="resetTimer()">Reset</button>
+        </div>
+    </div>
+
+    <div class="notification" id="notification">
+        Time's up! 🎉
+    </div>
+
+    <script>
+        let timerInterval;
+        let isRunning = false;
+        let isPaused = false;
+        let totalSeconds = 25 * 60; // Default 25 minutes
+        let currentSeconds = totalSeconds;
+        let originalTotalSeconds = totalSeconds;
+
+        const timerDisplay = document.getElementById('timerDisplay');
+        const statusElement = document.getElementById('status');
+        const progressCircle = document.getElementById('progressCircle');
+        const notification = document.getElementById('notification');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+
+        // Initialize progress circle
+        const radius = 90;
+        const circumference = 2 * Math.PI * radius;
+        progressCircle.style.strokeDasharray = circumference;
+        progressCircle.style.strokeDashoffset = circumference;
+
+        function updateDisplay() {
+            const minutes = Math.floor(currentSeconds / 60);
+            const seconds = currentSeconds % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            // Update progress circle
+            const progress = (originalTotalSeconds - currentSeconds) / originalTotalSeconds;
+            const offset = circumference - (progress * circumference);
+            progressCircle.style.strokeDashoffset = offset;
+        }
+
+        function updateStatus(status, className) {
+            statusElement.textContent = status;
+            statusElement.className = `status-indicator ${className}`;
+        }
+
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                isPaused = false;
+                updateStatus('Running', 'status-running');
+                startBtn.textContent = 'Running';
+                
+                timerInterval = setInterval(() => {
+                    if (currentSeconds > 0) {
+                        currentSeconds--;
+                        updateDisplay();
+                    } else {
+                        completeTimer();
+                    }
+                }, 1000);
+            }
+        }
+
+        function pauseTimer() {
+            if (isRunning) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                isPaused = true;
+                updateStatus('Paused', 'status-paused');
+                startBtn.textContent = 'Resume';
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            isPaused = false;
+            currentSeconds = originalTotalSeconds;
+            updateDisplay();
+            updateStatus('Ready', 'status-stopped');
+            startBtn.textContent = 'Start';
+        }
+
+        function completeTimer() {
+            clearInterval(timerInterval);
+            isRunning = false;
+            isPaused = false;
+            updateStatus('Complete!', 'status-stopped');
+            startBtn.textContent = 'Start';
+            
+            // Show notification
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
