@@ -12,7 +12,7 @@
         }
 
         body {
-            font-family: Impact, 'Arial Black', sans-serif;
+            font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: transparent;
             display: flex;
             justify-content: center;
@@ -35,11 +35,11 @@
 
         .timer-display {
             font-size: 4rem;
-            font-weight: 900;
+            font-weight: 700;
             color: #2d3748;
             margin-bottom: 30px;
-            font-family: Impact, 'Arial Black', sans-serif;
-            letter-spacing: 2px;
+            font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            letter-spacing: 1px;
         }
 
         .timer-controls {
@@ -50,14 +50,14 @@
         }
 
         .timer-btn {
-            padding: 15px;
+            padding: 18px;
             border: none;
             border-radius: 50%;
-            font-size: 1.5rem;
+            font-size: 1.8rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            width: 60px;
-            height: 60px;
+            width: 70px;
+            height: 70px;
             background: transparent;
             color: #2d3748;
             display: flex;
@@ -88,7 +88,9 @@
             font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-weight: 500;
+            font-weight: 400;
+            font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            text-transform: lowercase;
         }
 
         .preset-btn:hover {
@@ -107,6 +109,7 @@
             width: 200px;
             height: 200px;
             margin: 0 auto 30px;
+            cursor: pointer;
         }
 
         .progress-ring svg {
@@ -115,16 +118,20 @@
             transform: rotate(-90deg);
         }
 
+        .progress-ring:hover {
+            opacity: 0.8;
+        }
+
         .progress-ring-circle {
             fill: none;
             stroke: #e2e8f0;
-            stroke-width: 8;
+            stroke-width: 20;
         }
 
         .progress-ring-progress {
             fill: none;
-            stroke: #ffc4e4;
-            stroke-width: 8;
+            stroke: #2d3748;
+            stroke-width: 20;
             stroke-linecap: round;
             transition: stroke-dashoffset 0.3s ease;
         }
@@ -153,25 +160,25 @@
         .play-icon {
             width: 0;
             height: 0;
-            border-left: 15px solid #2d3748;
-            border-top: 10px solid transparent;
-            border-bottom: 10px solid transparent;
+            border-left: 18px solid #2d3748;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
             margin-left: 3px;
         }
 
         /* Custom pause icon */
         .pause-icon {
             position: relative;
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
         }
 
         .pause-icon::before,
         .pause-icon::after {
             content: '';
             position: absolute;
-            width: 4px;
-            height: 16px;
+            width: 5px;
+            height: 20px;
             background: #2d3748;
         }
 
@@ -196,9 +203,7 @@
 </head>
 <body>
     <div class="timer-container">
-        <div class="status-indicator" id="status">Ready</div>
-        
-        <div class="progress-ring">
+        <div class="progress-ring" id="progressRing">
             <svg>
                 <circle class="progress-ring-circle" cx="100" cy="100" r="90"></circle>
                 <circle class="progress-ring-progress" cx="100" cy="100" r="90" id="progressCircle"></circle>
@@ -208,8 +213,8 @@
         <div class="timer-display" id="timerDisplay">25:00</div>
         
         <div class="timer-presets">
-            <button class="preset-btn active" data-minutes="25">25 min</button>
-            <button class="preset-btn" data-minutes="5">5 min</button>
+            <button class="preset-btn active" data-minutes="25">work</button>
+            <button class="preset-btn" data-minutes="5">break</button>
         </div>
         
         <div class="timer-controls">
@@ -230,8 +235,8 @@
 
         // Get DOM elements
         const timerDisplay = document.getElementById('timerDisplay');
-        const statusElement = document.getElementById('status');
         const progressCircle = document.getElementById('progressCircle');
+        const progressRing = document.getElementById('progressRing');
         const playPauseBtn = document.getElementById('playPauseBtn');
         const resetBtn = document.getElementById('resetBtn');
 
@@ -253,8 +258,7 @@
         }
 
         function updateStatus(status, className) {
-            statusElement.textContent = status;
-            statusElement.className = `status-indicator ${className}`;
+            // Status updates removed - no longer needed
         }
 
         function toggleTimer() {
@@ -269,7 +273,6 @@
         function startTimer() {
             console.log('Starting timer');
             isRunning = true;
-            updateStatus('Running', 'status-running');
             playPauseBtn.innerHTML = '<div class="pause-icon"></div>';
             
             timerInterval = setInterval(() => {
@@ -285,7 +288,6 @@
         function pauseTimer() {
             console.log('Pausing timer');
             isRunning = false;
-            updateStatus('Paused', 'status-paused');
             playPauseBtn.innerHTML = '<div class="play-icon"></div>';
             if (timerInterval) {
                 clearInterval(timerInterval);
@@ -297,7 +299,6 @@
             isRunning = false;
             currentSeconds = originalTotalSeconds;
             updateDisplay();
-            updateStatus('Ready', 'status-stopped');
             playPauseBtn.innerHTML = '<div class="play-icon"></div>';
             if (timerInterval) {
                 clearInterval(timerInterval);
@@ -306,11 +307,33 @@
 
         function completeTimer() {
             isRunning = false;
-            updateStatus('Complete!', 'status-stopped');
             playPauseBtn.innerHTML = '<div class="play-icon"></div>';
             if (timerInterval) {
                 clearInterval(timerInterval);
             }
+            
+            // Play notification sound
+            try {
+                // Create a simple beep sound using Web Audio API
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800; // Frequency in Hz
+                oscillator.type = 'sine'; // Sine wave
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            } catch (error) {
+                console.log('Audio not supported');
+            }
+            
             alert('Time\'s up! 🎉');
         }
 
@@ -325,6 +348,33 @@
             // Update active preset
             document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelector(`[data-minutes="${minutes}"]`).classList.add('active');
+        }
+
+        function setTimeFromProgress(clickX, clickY) {
+            // Get the center of the circle
+            const rect = progressRing.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            // Calculate angle from center
+            const deltaX = clickX - centerX;
+            const deltaY = clickY - centerY;
+            let angle = Math.atan2(deltaY, deltaX);
+            
+            // Convert to degrees and adjust for circle starting at top
+            angle = (angle * 180 / Math.PI + 90) % 360;
+            if (angle < 0) angle += 360;
+            
+            // Convert angle to time remaining (0 degrees = full time, 360 degrees = 0 time)
+            const progress = angle / 360;
+            currentSeconds = Math.round(originalTotalSeconds * (1 - progress));
+            
+            // Ensure we don't go below 0
+            if (currentSeconds < 0) currentSeconds = 0;
+            if (currentSeconds > originalTotalSeconds) currentSeconds = originalTotalSeconds;
+            
+            updateDisplay();
+            console.log('Set time from drag:', currentSeconds, 'seconds');
         }
 
         // Initialize when page loads
@@ -345,6 +395,48 @@
                         setPresetTime(minutes);
                     }
                 });
+            });
+
+            // Add drag functionality to progress circle
+            progressRing.addEventListener('click', function(e) {
+                if (!isRunning) { // Only allow dragging when timer is stopped/paused
+                    setTimeFromProgress(e.clientX, e.clientY);
+                }
+            });
+
+            // Add drag support for mouse
+            let isDragging = false;
+            progressRing.addEventListener('mousedown', function(e) {
+                if (!isRunning) {
+                    isDragging = true;
+                    setTimeFromProgress(e.clientX, e.clientY);
+                }
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (isDragging && !isRunning) {
+                    setTimeFromProgress(e.clientX, e.clientY);
+                }
+            });
+
+            document.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+
+            // Add touch support for mobile
+            progressRing.addEventListener('touchstart', function(e) {
+                if (!isRunning) {
+                    const touch = e.touches[0];
+                    setTimeFromProgress(touch.clientX, touch.clientY);
+                }
+            });
+
+            progressRing.addEventListener('touchmove', function(e) {
+                if (!isRunning) {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    setTimeFromProgress(touch.clientX, touch.clientY);
+                }
             });
             
             console.log('Timer initialized successfully');
