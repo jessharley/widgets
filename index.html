@@ -50,49 +50,24 @@
         }
 
         .timer-btn {
-            padding: 12px 24px;
+            padding: 15px;
             border: none;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: 600;
+            border-radius: 50%;
+            font-size: 1.5rem;
             cursor: pointer;
             transition: all 0.3s ease;
-            min-width: 100px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            width: 60px;
+            height: 60px;
+            background: transparent;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .start-btn {
-            background: #6b7280;
-            color: white;
-        }
-
-        .start-btn:hover {
+        .play-pause-btn:hover, .reset-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(107, 114, 128, 0.3);
-            background: #4b5563;
-        }
-
-        .pause-btn {
-            background: #6b7280;
-            color: white;
-        }
-
-        .pause-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(107, 114, 128, 0.3);
-            background: #4b5563;
-        }
-
-        .reset-btn {
-            background: #6b7280;
-            color: white;
-        }
-
-        .reset-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(107, 114, 128, 0.3);
-            background: #4b5563;
+            background: rgba(45, 55, 72, 0.1);
         }
 
         .timer-presets {
@@ -105,10 +80,10 @@
 
         .preset-btn {
             padding: 8px 16px;
-            border: 2px solid #6b7280;
+            border: 2px solid #2d3748;
             border-radius: 25px;
             background: transparent;
-            color: #6b7280;
+            color: #2d3748;
             font-size: 0.9rem;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -116,13 +91,13 @@
         }
 
         .preset-btn:hover {
-            background: #6b7280;
+            background: #2d3748;
             color: white;
             transform: translateY(-1px);
         }
 
         .preset-btn.active {
-            background: #6b7280;
+            background: #2d3748;
             color: white;
         }
 
@@ -275,9 +250,7 @@
         const timerDisplay = document.getElementById('timerDisplay');
         const statusElement = document.getElementById('status');
         const progressCircle = document.getElementById('progressCircle');
-        const notification = document.getElementById('notification');
-        const startBtn = document.getElementById('startBtn');
-        const pauseBtn = document.getElementById('pauseBtn');
+        const playPauseBtn = document.getElementById('playPauseBtn');
 
         // Initialize progress circle
         const radius = 90;
